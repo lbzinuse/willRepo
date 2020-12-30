@@ -2,55 +2,47 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+//#include <iosteam.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+using namespace std;
 
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
+struct log {
+	string time_stamp;
+	string can;
+	string can_id;
+	string payload;
 
-#include <linux/can.h>
-#include <linux/can/raw.h>
+}car_log;
 
 int main(int argc, char **argv)
 {
-	int s; 
-	struct sockaddr_can addr;
-	struct ifreq ifr;
-	struct can_frame frame;
 
-	printf("CAN Sockets Demo\r\n");
+	fstream in_file("candump-2020-12-27_183804.log", ios::in);
+	if (!in_file) {
+        cerr << "Problem opening file" << endl;
+        return 1;
+    }
 
-	if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-		perror("Socket");
-		return 1;
+	// while (getline(in_file, line)) {
+
+	// }
+	char line {};
+	while (in_file.get(line)) {
+		cout << line;
 	}
 
-	strcpy(ifr.ifr_name, "vcan0" );
-	ioctl(s, SIOCGIFINDEX, &ifr);
+	car_log.time_stamp = 1;
+	car_log.can = 2;
+	car_log.can_id = 3;
+	car_log.payload = 4;
 
-	memset(&addr, 0, sizeof(addr));
-	addr.can_family = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
+	vector<log> vec_log;
+	vec_log.push_back(car_log);
 
-	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		perror("Bind");
-		return 1;
-	}
-
-	frame.can_id = 0x555;
-	frame.can_dlc = 5;
-	sprintf(frame.data, "Hello");
-
-	if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
-		perror("Write");
-		return 1;
-	}
-
-	if (close(s) < 0) {
-		perror("Close");
-		return 1;
-	}
+	in_file.close();
 
 	return 0;
 }
