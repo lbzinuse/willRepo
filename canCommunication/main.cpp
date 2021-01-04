@@ -11,7 +11,7 @@ struct log {
 	string can_id;
 	string payload;
 	int can_id_count=0;
-}car;
+};
 
 //bool compareFunction (car_log a, car_log b) {return a.can_id<b.can_id;} 
 //compare any way you like, here I am using the default string comparison
@@ -19,7 +19,13 @@ struct log {
 int main() {
 
 	vector<log> car_log;
-	int num{0};
+
+	// I created the first element in vector and give it a can_id of 000
+	car_log.push_back(log());
+	car_log[0].can_id = "000";
+
+
+	log temp_struct;
     std::ifstream in_file;
     in_file.open("candump-2020-12-27_183804.log");
     if (!in_file) {
@@ -27,16 +33,22 @@ int main() {
         return 1;
     }
     std::string line{};
-	//vector<string> id;
 	
 
     while (std::getline(in_file, line)) {
 		//string sub = line.substr(25, 3); //get CAN_ID from string
-		car.can_id = line.substr(25, 3); //get CAN_ID from string
+		temp_struct.can_id = line.substr(25, 3); //get CAN_ID from string
 
 		//find car.can_id in vector.  If not there then add it.
-		if(find(car_log.begin(), car_log.end(), car_log.) == car_log.end())
-			car_log.push_back(car);
+		if(find(car_log.begin(), car_log.end(), temp_struct.can_id) == car_log.end())
+			car_log.push_back(log());
+		
+		for(vector<log>::iterator it = car_log.begin(); it != car_log.end(); ++it)
+			if(*it==0)
+		
+		for(auto st : car_log)
+			if(temp_struct.can_id == st.can_id)
+
     }
 
 	cout << "This is how many unique CAN ID's are in the log." << endl;
