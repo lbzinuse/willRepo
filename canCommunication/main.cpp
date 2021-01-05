@@ -44,7 +44,7 @@ int main() {
 			car_log.push_back(log());
 		
 		for(vector<log>::iterator it = car_log.begin(); it != car_log.end(); ++it)
-			if(*it==0)
+			if(*it->can_id==temp_struct.can_id)
 		
 		for(auto st : car_log)
 			if(temp_struct.can_id == st.can_id)
