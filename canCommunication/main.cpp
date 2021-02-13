@@ -1,56 +1,120 @@
-// can transmit
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+using namespace std;
 
-#include <net/if.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
+struct log {
+	string time_stamp;
+	string can;
+	string can_id;
+	string payload;
+	int can_id_count=0;
+};
 
-#include <linux/can.h>
-#include <linux/can/raw.h>
+//bool compareFunction (car_log a, car_log b) {return a.can_id<b.can_id;} 
+//compare any way you like, here I am using the default string comparison
 
-int main(int argc, char **argv)
-{
-	int s; 
-	struct sockaddr_can addr;
-	struct ifreq ifr;
-	struct can_frame frame;
+int main() {
 
-	printf("CAN Sockets Demo\r\n");
+	vector<log> car_log;
 
-	if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-		perror("Socket");
-		return 1;
-	}
+	// I created the first element in vector and give it a can_id of 000
+	car_log.push_back(log());
+	car_log[0].can_id = "000";
 
-	strcpy(ifr.ifr_name, "vcan0" );
-	ioctl(s, SIOCGIFINDEX, &ifr);
 
-	memset(&addr, 0, sizeof(addr));
-	addr.can_family = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
+	log temp_struct;
+    std::ifstream in_file;
+    in_file.open("candump-2020-12-27_183804.log");
+    if (!in_file) {
+        std::cerr << "Problem opening file" << std::endl;
+        return 1;
+    }
+    std::string line{};
+	
 
-	if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		perror("Bind");
-		return 1;
-	}
+    while (std::getline(in_file, line)) {
+		//string sub = line.substr(25, 3); //get CAN_ID from string
+		temp_struct.can_id = line.substr(25, 3); //get CAN_ID from string
 
-	frame.can_id = 0x555;
-	frame.can_dlc = 5;
-	sprintf(frame.data, "Hello");
+		//find car.can_id in vector.  If not there then add it.
+		if(find(car_log.begin(), car_log.end(), temp_struct.can_id) == car_log.end())
+			car_log.push_back(log());
+		
+		for(vector<log>::iterator it = car_log.begin(); it != car_log.end(); ++it)
+			if(*it->can_id==temp_struct.can_id)
+		
+		for(auto st : car_log)
+			if(temp_struct.can_id == st.can_id)
 
-	if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
-		perror("Write");
-		return 1;
-	}
+    }
 
-	if (close(s) < 0) {
-		perror("Close");
-		return 1;
-	}
-
-	return 0;
+	cout << "This is how many unique CAN ID's are in the log." << endl;
+	//sort(car_log.begin(),car_log.end(),compareFunction); // sort vector alphabeticaly
+	for(auto st : car_log)
+		cout << st.can_id << " ";
+    
+	cout << endl << "The number of CAN ID's in the vector: " << car_log.size() << endl;
+    in_file.close();
+    return 0;
 }
+
+// // can transmit
+
+// //#include <stdio.h>
+// //#include <stdlib.h>
+// //#include <iosteam.h>
+// #include <string>
+// #include <vector>
+// #include <iostream>
+// #include <fstream>
+// using namespace std;
+
+// struct log {
+// 	string time_stamp;
+// 	string can;
+// 	string can_id;
+// 	string payload;
+
+// }car_log;
+
+// int main(int argc, char **argv)
+// {
+
+// 	fstream in_file("candump-2020-12-27_183804.log", ios::in);
+// 	if (!in_file) {
+//         cerr << "Problem opening file" << endl;
+//         return 1;
+//     }
+
+// 	// while (getline(in_file, line)) {
+
+// 	// }
+// 	char line {};
+// 	while (in_file.get(line)) {
+// 		cout << line;
+// 	}
+// 	string ln;
+// 	while (in_file.getline(ln, sizeof(ln)))
+// 	{
+
+// 	}
+// 	// for(int x=0;x<6;x++)
+// 	// {
+// 	// 	in_file.get(line);
+// 	// 	cout << line;
+// 	// }
+// 	car_log.time_stamp = 1;
+// 	car_log.can = 2;
+// 	car_log.can_id = 3;
+// 	car_log.payload = 4;
+
+// 	vector<log> vec_log;
+// 	vec_log.push_back(car_log);
+
+// 	in_file.close();
+
+// 	return 0;
+// }
